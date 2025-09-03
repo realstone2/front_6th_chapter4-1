@@ -6,8 +6,13 @@ const port = process.env.PORT || 5173;
 const base = process.env.BASE || (isProduction ? "/front_6th_chapter4-1/vanilla/" : "/");
 
 const templateHtml = isProduction ? await fs.readFile("./dist/client/index.html", "utf-8") : "";
+import { mswServer } from "./src/mocks/node.js";
 
 const app = express();
+
+mswServer.listen({
+  onUnhandledRequest: "bypass",
+});
 
 // Add Vite or respective production middlewares
 /** @type {import('vite').ViteDevServer | undefined} */
@@ -49,11 +54,17 @@ app.get("*all", async (req, res) => {
       render = (await import("./dist/server/main-server.js")).render;
     }
 
-    const rendered = await render(req, res);
+    const rendered = await render(url);
+
+    if (!rendered) {
+      return;
+    }
+    const ssrData = await rendered.getSSRData?.();
 
     const html = template
       .replace(`<!--app-head-->`, rendered.head ?? "")
-      .replace(`<!--app-html-->`, rendered.html ?? "");
+      .replace(`<!--app-html-->`, rendered.html ?? "")
+      .replace(`<!--ssr-data-->`, `<script>window.__INITIAL_MODEL__ = ${JSON.stringify(ssrData)}</script>`);
 
     res.status(200).set({ "Content-Type": "text/html" }).send(html);
   } catch (e) {
@@ -64,6 +75,6 @@ app.get("*all", async (req, res) => {
 });
 
 // Start http server
-app.listen(port, () => {
-  console.log(`React Server started at http://localhost:${port}`);
+app.listen(port, async () => {
+  console.log(`Vanilla Server started at http://localhost:${port}`);
 });
