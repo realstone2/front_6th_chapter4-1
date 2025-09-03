@@ -46,13 +46,30 @@ router.addRoute("/product/:id/", () => {
     head: "<title>상품 상세 페이지</title>",
     html: ProductDetailPage,
     getSSRData: async () => {
-      const response = await getProduct(router.params.id);
+      const product = await getProduct(router.params.id);
+
+      const params = {
+        category2: product.category2,
+        limit: 20,
+        page: 1,
+      };
+      const products = await getProducts(params);
+      const relatedProducts = products.products.filter((product) => product.productId !== router.params.id);
+
       productStore.dispatch({
         type: PRODUCT_ACTIONS.SET_CURRENT_PRODUCT,
-        payload: response,
+        payload: product,
       });
 
-      return response;
+      productStore.dispatch({
+        type: PRODUCT_ACTIONS.SET_RELATED_PRODUCTS,
+        payload: relatedProducts,
+      });
+
+      return {
+        product,
+        relatedProducts,
+      };
     },
   };
 });

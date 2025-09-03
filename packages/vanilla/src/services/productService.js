@@ -181,6 +181,14 @@ export const loadProductDetailForPage = async (productId) => {
  * 관련 상품 로드 (같은 카테고리의 다른 상품들)
  */
 export const loadRelatedProducts = async (category2, excludeProductId) => {
+  if (getServerData()) {
+    productStore.dispatch({
+      type: PRODUCT_ACTIONS.SET_RELATED_PRODUCTS,
+      payload: getServerData().relatedProducts,
+    });
+    return;
+  }
+
   try {
     const params = {
       category2,
