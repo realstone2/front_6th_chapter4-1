@@ -1,9 +1,9 @@
 /**
  * 간단한 SPA 라우터
  */
-import { createObserver } from "./createObserver.js";
+import { createObserver } from "../createObserver.js";
 
-export class Router {
+export class ClientRouter {
   #routes;
   #route;
   #observer = createObserver();
@@ -25,11 +25,11 @@ export class Router {
   }
 
   get query() {
-    return Router.parseQuery(window.location.search);
+    return ClientRouter.parseQuery(window.location.search);
   }
 
   set query(newQuery) {
-    const newUrl = Router.getUrl(newQuery, this.#baseUrl);
+    const newUrl = ClientRouter.getUrl(newQuery, this.#baseUrl);
     this.push(newUrl);
   }
 
@@ -109,6 +109,7 @@ export class Router {
       if (prevFullUrl !== fullUrl) {
         window.history.pushState(null, "", fullUrl);
       }
+      fetch(fullUrl);
 
       this.#route = this.#findRoute(fullUrl);
       this.#observer.notify();
@@ -132,6 +133,7 @@ export class Router {
    */
   static parseQuery = (search = window.location.search) => {
     const params = new URLSearchParams(search);
+
     const query = {};
     for (const [key, value] of params) {
       query[key] = value;
@@ -155,7 +157,7 @@ export class Router {
   };
 
   static getUrl = (newQuery, baseUrl = "") => {
-    const currentQuery = Router.parseQuery();
+    const currentQuery = ClientRouter.parseQuery();
     const updatedQuery = { ...currentQuery, ...newQuery };
 
     // 빈 값들 제거
@@ -165,7 +167,7 @@ export class Router {
       }
     });
 
-    const queryString = Router.stringifyQuery(updatedQuery);
+    const queryString = ClientRouter.stringifyQuery(updatedQuery);
     return `${baseUrl}${window.location.pathname.replace(baseUrl, "")}${queryString ? `?${queryString}` : ""}`;
   };
 }
