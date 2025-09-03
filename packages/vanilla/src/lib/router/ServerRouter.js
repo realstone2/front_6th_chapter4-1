@@ -91,7 +91,6 @@ export class ServerRouter {
 
   start(url) {
     this.#currentUrl = url;
-    console.log("🐶 findroute ", this.#findRoute());
     this.#route = this.#findRoute();
   }
 }

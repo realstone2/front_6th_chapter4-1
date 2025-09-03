@@ -75,6 +75,6 @@ app.get("*all", async (req, res) => {
 });
 
 // Start http server
-app.listen(port, async () => {
+app.listen(port, () => {
   console.log(`Vanilla Server started at http://localhost:${port}`);
 });
