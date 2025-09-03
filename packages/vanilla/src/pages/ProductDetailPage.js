@@ -35,6 +35,7 @@ const ErrorContent = ({ error }) => `
 `;
 
 function ProductDetail({ product, relatedProducts = [] }) {
+  console.log("🚀 ~ ProductDetail ~ product:", product);
   const {
     productId,
     title,

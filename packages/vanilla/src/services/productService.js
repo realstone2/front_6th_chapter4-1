@@ -1,8 +1,12 @@
 import { getCategories, getProduct, getProducts } from "../api/productApi";
 import { initialProductState, productStore, PRODUCT_ACTIONS } from "../stores";
 import { router } from "../router";
+import { getServerData } from "../lib/serverData";
 
 export const loadProductsAndCategories = async () => {
+  if (import.meta.env.SSR) {
+    return;
+  }
   router.query = { current: undefined }; // 항상 첫 페이지로 초기화
   productStore.dispatch({
     type: PRODUCT_ACTIONS.SETUP,
@@ -14,13 +18,22 @@ export const loadProductsAndCategories = async () => {
   });
 
   try {
+    const serverData = getServerData();
     const [
       {
         products,
         pagination: { total },
       },
       categories,
-    ] = await Promise.all([getProducts(router.query), getCategories()]);
+    ] = serverData
+      ? [
+          {
+            products: serverData.products,
+            pagination: { total: serverData.totalCount },
+          },
+          serverData.categories,
+        ]
+      : await Promise.all([getProducts(router.query), getCategories()]);
 
     // 페이지 리셋이면 새로 설정, 아니면 기존에 추가
     productStore.dispatch({
@@ -119,6 +132,9 @@ export const setLimit = (limit) => {
  * 상품 상세 페이지용 상품 조회 및 관련 상품 로드
  */
 export const loadProductDetailForPage = async (productId) => {
+  if (import.meta.env.SSR) {
+    return;
+  }
   try {
     const currentProduct = productStore.getState().currentProduct;
     if (productId === currentProduct?.productId) {
@@ -139,7 +155,7 @@ export const loadProductDetailForPage = async (productId) => {
       },
     });
 
-    const product = await getProduct(productId);
+    const product = getServerData() ?? (await getProduct(productId));
 
     // 현재 상품 설정
     productStore.dispatch({
