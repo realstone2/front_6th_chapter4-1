@@ -1,14 +1,5 @@
 import { http, HttpResponse } from "msw";
 import items from "./items.json" with { type: "json" };
-// import { readFileSync } from "node:fs";
-// import { fileURLToPath } from "node:url";
-// import { dirname, join } from "node:path";
-
-// // JSON 파일을 동적으로 읽기
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = dirname(__filename);
-// const itemsPath = join(__dirname, "items.json");
-// const items = JSON.parse(readFileSync(itemsPath, "utf-8"));
 
 const delay = async () => await new Promise((resolve) => setTimeout(resolve, 200));
 
