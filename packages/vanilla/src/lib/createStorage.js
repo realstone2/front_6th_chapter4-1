@@ -1,10 +1,27 @@
+const createServerStorage = () => {
+  const storage = {};
+  return {
+    getItem: (key) => {
+      return storage[key];
+    },
+    setItem: (key, value) => {
+      storage[key] = value;
+    },
+    removeItem: (key) => {
+      delete storage[key];
+    },
+  };
+};
+
+const serverStorage = createServerStorage();
+
 /**
  * 로컬스토리지 추상화 함수
  * @param {string} key - 스토리지 키
  * @param {Storage} storage - 기본값은 localStorage
  * @returns {Object} { get, set, reset }
  */
-export const createStorage = (key, storage = window.localStorage) => {
+export const createStorage = (key, storage = import.meta.env.SSR ? serverStorage : window.localStorage) => {
   const get = () => {
     try {
       const item = storage.getItem(key);

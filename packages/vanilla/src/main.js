@@ -4,6 +4,7 @@ import { registerAllEvents } from "./events";
 import { loadCartFromStorage } from "./services";
 import { router } from "./router";
 import { BASE_URL } from "./constants.js";
+import { setServerData } from "./lib/serverData.js";
 
 const enableMocking = () =>
   import("./mocks/browser.js").then(({ worker }) =>
@@ -16,6 +17,7 @@ const enableMocking = () =>
   );
 
 function main() {
+  setServerData(window.__INITIAL_MODEL__);
   registerAllEvents();
   registerGlobalEvents();
   loadCartFromStorage();
