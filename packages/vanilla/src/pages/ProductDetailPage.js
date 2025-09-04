@@ -1,7 +1,8 @@
-import { productStore } from "../stores";
+import { PRODUCT_ACTIONS, productStore } from "../stores";
 import { loadProductDetailForPage } from "../services";
-import { router, withLifecycle } from "../router";
+import { router as GlobalRouter, withLifecycle, withSSR } from "../router";
 import { PageWrapper } from "./PageWrapper.js";
+import { getProduct, getProducts } from "../api/productApi.js";
 
 const loadingContent = `
   <div class="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -35,7 +36,6 @@ const ErrorContent = ({ error }) => `
 `;
 
 function ProductDetail({ product, relatedProducts = [] }) {
-  console.log("🚀 ~ ProductDetail ~ product:", product);
   const {
     productId,
     title,
@@ -232,36 +232,68 @@ function ProductDetail({ product, relatedProducts = [] }) {
   `;
 }
 
+const renderPage = () => {
+  const { currentProduct: product, relatedProducts = [], error, loading } = productStore.getState();
+
+  return PageWrapper({
+    headerLeft: `
+  <div class="flex items-center space-x-3">
+    <button onclick="window.history.back()" 
+            class="p-2 text-gray-700 hover:text-gray-900 transition-colors">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </button>
+    <h1 class="text-lg font-bold text-gray-900">상품 상세</h1>
+  </div>
+`.trim(),
+    children: loading
+      ? loadingContent
+      : error && !product
+        ? ErrorContent({ error })
+        : ProductDetail({ product, relatedProducts }),
+  });
+};
+
 /**
  * 상품 상세 페이지 컴포넌트
  */
-export const ProductDetailPage = withLifecycle(
-  {
-    onMount: () => {
-      loadProductDetailForPage(router.params.id);
-    },
-    watches: [() => [router.params.id], () => loadProductDetailForPage(router.params.id)],
-  },
-  () => {
-    const { currentProduct: product, relatedProducts = [], error, loading } = productStore.getState();
+export const ProductDetailPage = import.meta.env.SSR
+  ? withSSR({
+      renderHead: ({ product }) => `<title>${product.title} - 쇼핑몰</title>`,
+      render: renderPage,
+      getSSRData: async (router) => {
+        const product = await getProduct(router.params.id);
+        const params = {
+          category2: product.category2,
+          limit: 20,
+          page: 1,
+        };
+        const products = await getProducts(params);
+        const relatedProducts = products.products.filter((p) => p.productId !== router.params.id);
 
-    return PageWrapper({
-      headerLeft: `
-        <div class="flex items-center space-x-3">
-          <button onclick="window.history.back()" 
-                  class="p-2 text-gray-700 hover:text-gray-900 transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>
-          </button>
-          <h1 class="text-lg font-bold text-gray-900">상품 상세</h1>
-        </div>
-      `.trim(),
-      children: loading
-        ? loadingContent
-        : error && !product
-          ? ErrorContent({ error })
-          : ProductDetail({ product, relatedProducts }),
-    });
-  },
-);
+        return {
+          product,
+          relatedProducts,
+        };
+      },
+      onMount: ({ product, relatedProducts }) => {
+        productStore.dispatch({
+          type: PRODUCT_ACTIONS.SET_CURRENT_PRODUCT,
+          payload: product,
+        });
+        productStore.dispatch({
+          type: PRODUCT_ACTIONS.SET_RELATED_PRODUCTS,
+          payload: relatedProducts,
+        });
+      },
+    })
+  : withLifecycle(
+      {
+        onMount: () => {
+          loadProductDetailForPage(GlobalRouter.params.id);
+        },
+        watches: [() => [GlobalRouter.params.id], () => loadProductDetailForPage(GlobalRouter.params.id)],
+      },
+      renderPage,
+    );
