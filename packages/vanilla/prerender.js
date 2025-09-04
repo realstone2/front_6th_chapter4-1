@@ -51,7 +51,7 @@ async function prerender() {
     const { render } = await import("./dist/vanilla-ssr/main-server.js");
 
     // 출력 디렉토리 생성
-    const outputDir = path.join(__dirname, "dist", "vanilla");
+    const outputDir = path.join(__dirname, "dist", "vanilla-ssg");
     await fs.mkdir(outputDir, { recursive: true });
 
     // 홈페이지 생성
@@ -167,7 +167,7 @@ async function prerender() {
 
     for (const file of publicFiles) {
       try {
-        const sourcePath = path.join(__dirname, "dist", "vanilla", file);
+        const sourcePath = path.join(__dirname, "dist", "vanilla-ssg", file);
         const targetPath = path.join(outputDir, file);
         await fs.copyFile(sourcePath, targetPath);
       } catch (error) {
