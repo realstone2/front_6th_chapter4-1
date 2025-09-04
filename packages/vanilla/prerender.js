@@ -163,13 +163,21 @@ async function prerender() {
       "star-icon.svg",
       "success-icon.svg",
       "warning-icon.svg",
+      "mockServiceWorker.js",
     ];
 
     for (const file of publicFiles) {
       try {
-        const sourcePath = path.join(__dirname, "dist", "vanilla-ssg", file);
-        const targetPath = path.join(outputDir, file);
-        await fs.copyFile(sourcePath, targetPath);
+        // mockServiceWorker.js는 public 폴더에서 복사
+        if (file === "mockServiceWorker.js") {
+          const sourcePath = path.join(__dirname, "public", file);
+          const targetPath = path.join(outputDir, file);
+          await fs.copyFile(sourcePath, targetPath);
+        } else {
+          const sourcePath = path.join(__dirname, "dist", "vanilla-ssg", file);
+          const targetPath = path.join(outputDir, file);
+          await fs.copyFile(sourcePath, targetPath);
+        }
       } catch (error) {
         console.warn("⚠️ 정적 자산 복사 중 오류:", error.message);
       }
