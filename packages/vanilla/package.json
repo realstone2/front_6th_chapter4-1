@@ -18,7 +18,7 @@
     "preview:csr-with-build": "pnpm run build:client && pnpm run preview:csr",
     "preview:ssr": "PORT=4174 NODE_ENV=production node server.js",
     "preview:ssr-with-build": "pnpm run build:without-ssg && pnpm run preview:ssr",
-    "preview:ssg": "vite preview --outDir ./dist/vanilla-ssg --port 4178",
+    "preview:ssg": "vite preview --outDir ../../dist/vanilla --port 4178",
     "preview:ssg-with-build": "pnpm run build && pnpm run preview:ssg",
     "serve:test": "pnpm run build:without-ssg && pnpm run build:ssg && (pnpm run dev & pnpm run dev:ssr & pnpm run preview:csr & pnpm run preview:ssr & pnpm run preview:ssg)",
     "prepare": "husky"

@@ -175,12 +175,20 @@ async function prerender() {
       }
     }
 
+    // SSG 결과물을 루트 dist 폴더로 복사
+    console.log("📁 SSG 결과물을 루트 dist 폴더로 복사 중...");
+    const rootDistDir = path.join(__dirname, "../../dist/vanilla");
+    await fs.rm(rootDistDir, { recursive: true, force: true });
+    await fs.cp(outputDir, rootDistDir, { recursive: true });
+    console.log("✅ 루트 dist 폴더로 복사 완료");
+
     console.log(`🎉 Static Site Generation 완료!`);
     console.log(`📊 총 ${completed + 2}개의 페이지가 생성되었습니다:`);
     console.log(`   - 홈페이지: 1개`);
     console.log(`   - 상품 페이지: ${completed}개`);
     console.log(`   - 404 페이지: 1개`);
     console.log(`📂 출력 디렉토리: ${outputDir}`);
+    console.log(`📂 배포용 디렉토리: ${rootDistDir}`);
 
     // MSW 서버 정리
     try {
