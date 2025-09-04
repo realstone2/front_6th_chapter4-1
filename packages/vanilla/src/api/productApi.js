@@ -2,7 +2,12 @@ const withBaseUrl = (url) => {
   // 지훈님 코드 사용
   // 서버 환경에서는 절대 경로를 사용해야하기 때문에 임시 baseURL 설정
   // msw 핸들러에서 baseURL 상관 없이 처리함
-  return import.meta.env.SSR ? new URL(url, `http://localhost`) : url;
+
+  const prod = process.env.NODE_ENV === "production";
+
+  const port = prod ? 4174 : 5174;
+
+  return import.meta.env.SSR ? new URL(url, `http://localhost:${port}`) : url;
 };
 
 export async function getProducts(params = {}) {

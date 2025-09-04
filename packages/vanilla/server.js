@@ -1,12 +1,12 @@
 import express from "express";
 import fs from "node:fs/promises";
+import { mswServer } from "./src/mocks/node.js";
 
 const isProduction = process.env.NODE_ENV === "production";
 const port = process.env.PORT || 5173;
 const base = process.env.BASE || (isProduction ? "/front_6th_chapter4-1/vanilla/" : "/");
 
-const templateHtml = isProduction ? await fs.readFile("./dist/client/index.html", "utf-8") : "";
-import { mswServer } from "./src/mocks/node.js";
+const templateHtml = isProduction ? await fs.readFile("dist/vanilla/index.html", "utf-8") : "";
 
 const app = express();
 
@@ -29,7 +29,7 @@ if (!isProduction) {
   const compression = (await import("compression")).default;
   const sirv = (await import("sirv")).default;
   app.use(compression());
-  app.use(base, sirv("./dist/client", { extensions: [] }));
+  app.use(base, sirv("./dist/vanilla", { extensions: [] }));
 }
 
 //모든 url을 핸들링하고 라우팅 작업을 진행함
@@ -51,7 +51,7 @@ app.get("*all", async (req, res) => {
       render = (await vite.ssrLoadModule("/src/main-server.js")).render;
     } else {
       template = templateHtml;
-      render = (await import("./dist/server/main-server.js")).render;
+      render = (await import("./dist/vanilla-ssr/main-server.js")).render;
     }
 
     const rendered = await render(url, req.query);
