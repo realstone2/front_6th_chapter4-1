@@ -4,9 +4,6 @@ import { router } from "../router";
 import { getServerData } from "../lib/serverData";
 
 export const loadProductsAndCategories = async () => {
-  if (import.meta.env.SSR) {
-    return;
-  }
   router.query = { current: undefined }; // 항상 첫 페이지로 초기화
   productStore.dispatch({
     type: PRODUCT_ACTIONS.SETUP,
@@ -132,9 +129,6 @@ export const setLimit = (limit) => {
  * 상품 상세 페이지용 상품 조회 및 관련 상품 로드
  */
 export const loadProductDetailForPage = async (productId) => {
-  if (import.meta.env.SSR) {
-    return;
-  }
   try {
     const currentProduct = productStore.getState().currentProduct;
     if (productId === currentProduct?.productId) {
@@ -155,7 +149,7 @@ export const loadProductDetailForPage = async (productId) => {
       },
     });
 
-    const product = getServerData() ?? (await getProduct(productId));
+    const product = getServerData()?.product ?? (await getProduct(productId));
 
     // 현재 상품 설정
     productStore.dispatch({
@@ -181,7 +175,7 @@ export const loadProductDetailForPage = async (productId) => {
  * 관련 상품 로드 (같은 카테고리의 다른 상품들)
  */
 export const loadRelatedProducts = async (category2, excludeProductId) => {
-  if (getServerData()) {
+  if (getServerData()?.relatedProducts) {
     productStore.dispatch({
       type: PRODUCT_ACTIONS.SET_RELATED_PRODUCTS,
       payload: getServerData().relatedProducts,
