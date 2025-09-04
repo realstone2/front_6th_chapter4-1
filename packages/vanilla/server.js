@@ -54,17 +54,16 @@ app.get("*all", async (req, res) => {
       render = (await import("./dist/server/main-server.js")).render;
     }
 
-    const rendered = await render(url);
+    const rendered = await render(url, req.query);
 
     if (!rendered) {
       return;
     }
-    const ssrData = await rendered.getSSRData?.();
 
     const html = template
       .replace(`<!--app-head-->`, rendered.head ?? "")
       .replace(`<!--app-html-->`, rendered.html ?? "")
-      .replace(`<!--ssr-data-->`, `<script>window.__INITIAL_MODEL__ = ${JSON.stringify(ssrData)}</script>`);
+      .replace(`<!--ssr-data-->`, `<script>window.__INITIAL_MODEL__ = ${JSON.stringify(rendered.serverData)}</script>`);
 
     res.status(200).set({ "Content-Type": "text/html" }).send(html);
   } catch (e) {
