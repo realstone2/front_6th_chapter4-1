@@ -23,8 +23,8 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
     "allowJs": true,
-    "checkJs": false,
+    "checkJs": false
   },
-  "include": ["packages/*/src/**/*"],
+  "include": ["packages/*/src/**/*", "packages/vanilla/prerender.js"],
   "exclude": ["node_modules", "dist", "build"]
 }

@@ -9,7 +9,7 @@
     "build:client": "rm -rf ./dist/vanilla && vite build --outDir ./dist/vanilla && cp ./dist/vanilla/index.html ./dist/vanilla/404.html",
     "build:client-for-ssg": "rm -rf ../../dist/vanilla && vite build --outDir ../../dist/vanilla",
     "build:server": "vite build --outDir ./dist/vanilla-ssr --ssr src/main-server.js",
-    "build:ssg": "pnpm run build:client-for-ssg && node static-site-generate.js",
+    "build:ssg": "pnpm run build:client-for-ssg && pnpm run build:server && node ./prerender.js",
     "build:without-ssg": "pnpm run build:client && pnpm run build:server",
     "build": "pnpm run build:client && pnpm run build:server && pnpm run build:ssg",
     "lint:fix": "eslint --fix ./src",
@@ -18,7 +18,7 @@
     "preview:csr-with-build": "pnpm run build:client && pnpm run preview:csr",
     "preview:ssr": "PORT=4174 NODE_ENV=production node server.js",
     "preview:ssr-with-build": "pnpm run build:without-ssg && pnpm run preview:ssr",
-    "preview:ssg": "vite preview --outDir ../../dist/vanilla --port 4178",
+    "preview:ssg": "vite preview --outDir ./dist/vanilla --port 4178",
     "preview:ssg-with-build": "pnpm run build && pnpm run preview:ssg",
     "serve:test": "pnpm run build:without-ssg && pnpm run build:ssg && (pnpm run dev & pnpm run dev:ssr & pnpm run preview:csr & pnpm run preview:ssr & pnpm run preview:ssg)",
     "prepare": "husky"
